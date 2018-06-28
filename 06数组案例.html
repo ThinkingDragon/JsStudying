@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script>
+        //给一个数字数组，该数组中有很多数字0，将不为0的数据存入到一个新的数组中【作业】
+        // var arr = [23, 0, 123, 0, 345, 45, 0, 68];
+        // var newArr =[];
+        // for(var i = 0; i < arr.length; i++) {
+        //     if(arr[i] != 0) {
+        //         //将arr里面的非0的元素追加到新数组中
+        //         newArr[newArr.length] = arr[i];
+        //     }
+        // }
+        // console.log(newArr);
+        //2.给一个数组，将数组中的数据反转，存放到一个新的数组中。
+        //         0  1  2  3  4
+        var arr = [1, 2, 3, 4, 5, 6];
+        // //          交换了2次
+        //             (arr.length-1)/2
+        //           [5, 2, 3, 4, 1]
+        //           [5, 4, 3, 2, 1]
+        for(var i = 0; i<(arr.length-1)/2; i++) {
+            var temp = arr[i];
+            arr[i] = arr[arr.length - 1 - i];
+            arr[arr.length - 1 - i] = temp;
+        }
+        console.log(arr);
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

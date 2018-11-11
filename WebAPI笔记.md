@@ -1373,554 +1373,437 @@ document.onmousemove = function(){
 var spaceX = getPage(event).x - box.offsetLeft;
 var spaceY = getPage(event).y - box.offsetTop;
 ```
+# Web APIs - Day6
 
+## BOM
 
-# Web APIs - Day5
+> BOM（Browser Object Model）：浏览器对象模型，提供了一套操作浏览器功能的工具。
 
-## 每日目标
+BOM包含的内容很多，但是很多东西都不太常用，在BOM中需要大家掌握的就一个东西，那就是***定时器*** 。
 
-- 能够掌握注册事件的新方式
-- 能够移除事件
-- 能够说出事件冒泡的执行顺序
-- 能够说出什么是事件对象
-- 能够进行事件委托设置
-- 能够掌握鼠标坐标的获取方式
-- 能够完成拖拽案例
+### window对象（掌握）
 
-## 注册事件的两种方式
+1. window对象是一个全局对象，想·也可以说是JavaScript在浏览器环境中的顶级对象
+2. 像document、alert()、console这些都是window的属性，其实BOM中基本所有的属性和方法都是属性window的。
+3. 所有定义在全局作用域中的变量、函数都会变成window对象的属性和方法
+4. window对象下的属性和方法调用的时候可以省略window
 
-### on+事件名称
+#### window.onload（掌握）
 
-> onclick、onmouseover这种on+事件名称的方式注册事件几乎所有的浏览器都支持。
-
-注册事件：
+> window.onload事件会在窗体加载完成后执行，通常我们称之为入口函数。
 
 ```javascript
-box.onclick = function(){
-	//事件处理程序	
+window.onload = function(){
+	//里面的代码会在页面加载完成后执行。
+	//页面加载完成包括结构的加载、还有图片、文件的加载完成。
 }
 ```
 
-移除事件：
+如果有图片加载，那么代码一定要写到window.onload里面，否则会出现图片没有加载完成，获取到的宽度和高度不对的情况。
+
+浏览器会对页面的加载做优化，在加载图片的时候，图片的引入会延迟。
+
+#### window.open与window.close(了解)
+
+> window.open() 打开一个窗口
 
 ```javascript
-box.onclick = null;	
+//语法：window.open(url, [name], [features]);
+//参数1：需要载入的url地址
+//参数2：新窗口的名称
+	//_self:在当前窗口打开
+	//_blank:在新的窗口打开
+//参数3：窗口的属性，指定窗口的大小
+//返回值：会返回刚刚创建的那个窗口，用于关闭
+//示例：
+var newWin = window.open("http://www.baidu.com","_blank", "width=300,height=300");
 ```
 
-on+事件名称注册事件的缺点：
-
-同一个元素同一类型的事件，只能注册一个，如果注册了多个，会出现覆盖问题。
-
-
-
-### 注册事件的新方式
-
-**addEventListener与removeEventListener**
-
-> 现代浏览器支持的注册事件的新方式，这种方式注册的事件不会出现覆盖问题。
-
-addEventListener的语法
+> window.close() 关闭窗口
 
 ```javascript
-//第一个参数：事件类型：click mouseover
-//第二个参数：事件处理程序
-//第三个参数：false 
-DOM对象.addEventListener(type, func, useCapture);
+newWin.close()；//newWin是刚刚创建的那个窗口
+window.close();//把当前窗口给关闭了
 ```
 
-注意：如果想要让你注册的事件能够移除，不能使用匿名函数。
+### location对象
+
+> location对象也是window的一个属性，location其实对应的就是浏览器中的地址栏。
+
+#### 常用属性和方法
+
+> location.href:控制地址栏中的地址
 
 ```javascript
-function fn1() {
-    alert("hehe");
+location.href = 'http://www.baidu.com';//让页面跳转到百度首页
+```
+
+> location.reload()：让页面重新加载
+
+```javascript
+location.reload(true);//强制刷新，相当于ctrl+F5
+location.reload(false);//刷新，相当于F5
+```
+
+> location的其他属性
+
+```javascript
+console.log(window.location.hash);//哈希值 其实就是锚点
+console.log(window.location.host);//服务器 服务器名+端口号
+console.log(window.location.hostname);//服务器名
+console.log(window.location.pathname);//路径名
+console.log(window.location.port);//端口
+console.log(window.location.protocol);//协议
+console.log(window.location.search);//参数
+```
+
+### navigator对象
+
+> window.navigator的一些属性可以获取客户端的一些信息
+
+```javascript
+navigator.userAgent;   // 用户代理字符串：浏览器版本
+```
+
+### history 对象
+
+> history对象表示页面的历史
+
+```javascript
+//后退：
+history.back();
+history.go(-1);
+//前进：
+history.forward();
+history.go(1);
+```
+
+### 定时器（重点）
+
+#### 延时定时器 timeout
+
+> 延时定时器可以让代码延迟一段时间之后才执行（定时炸弹）
+
+设置延时定时器
+
+```javascript
+//语法：setTimeout(callback, time);
+//参数1：回调函数，时间到了就会执行。
+//参数2：延时的时间，毫秒形式
+//返回：定时器的id，用于清除
+//示例：
+var timer = setTimeout(function(){
+	//1秒后将执行的代码。
+}, 1000);
+```
+
+清除延时定时器
+
+```javascript
+//语法：clearTimeout(timerId)
+//参数：定时器id
+//示例：
+clearTimeout(timer);//清除上面定义的定时器
+```
+
+#### 间歇定时器 interval
+
+> 间歇定时器让定时器每隔一段时间就会执行一次，并且会一直执行，直到清除定时器为止.
+
+设置间歇定时器
+
+```javascript
+//语法：var intervalID = setInterval(func, delay);
+//参数1：重复执行的函数
+//参数2：每次间隔的毫秒数
+//返回：定时器的id，用于清除
+//示例：
+var timer = setInterval(function(){
+	//重复执行的代码。
+}, 1000);
+```
+
+清除间歇定时器
+
+```javascript
+//语法：clearInterval(intervalID)
+//参数：定时器id
+//示例：
+clearInterval(timer);//清除上面定义的定时器
+```
+
+## 动画函数封装
+
+```javascript
+1. 让一个盒子，点一次能够跑一次
+2. 一个盒子，能够自动的跑到400px的地方
+	a).判断leader<400才跑，否则清除定时器
+	b).一进来，要记得清除定时器，不然会越点越快。
+3. 封装成一个函数
+	a).把box替换成element
+    b).把400替换成target
+    c).把timer绑定到element上
+4. 封装的函数不会往回跑
+	a).修改step，要有正负 var step = target > leader ? 10 : -10;
+	b).判断条件修改，当距离大于等于一步的时候，才跑，否则清除定时器，抱过去
+```
+
+## 轮播图
+
+### 简单轮播图
+
+```javascript
+1.	结构分析
+2.	按钮高亮以及排他
+3.	移动图片：
+	渐渐的移动图片，用到animate函数
+```
+
+### 左右焦点图
+
+```javascript
+1.	结构分析
+2.	左右箭头的显示与隐藏
+3.	点击左箭头与右箭头（下标判断）
+```
+
+### 无缝轮播图
+
+```javascript
+1. 需要添加假图片
+2. 真图片与假图片之间互相切换。
+```
+
+# 轮播图
+
+## 创建HTML页面
+
+```html
+<div class="all" id='box'>
+  <!-- 可视区域 -->
+  <div class="screen">
+    <!-- 要运动的ul -->
+    <ul>
+      <li><img src="images/1.jpg" width="500" height="200"/></li>
+      <li><img src="images/2.jpg" width="500" height="200"/></li>
+      <li><img src="images/3.jpg" width="500" height="200"/></li>
+      <li><img src="images/4.jpg" width="500" height="200"/></li>
+      <li><img src="images/5.jpg" width="500" height="200"/></li>
+    </ul>
+    <ol>
+      <!-- 动态创建的小方块，添加在这里，样式已经给写好了-->
+    </ol>
+  </div>
+  <div id="arr"><span id="left">&lt;</span><span id="right">&gt;</span></div>
+</div>
+```
+
+​	结构代码如上，其中ul中放置所有图片所在的li，ol用于放置图片对应的小方块。为了方便维护，将小方块的结构设置为动态创建的li标签，个数取决于ul中li的个数，也就是图片张数。
+
+## 元素获取
+
+```javascript
+var box = document.getElementById('box');
+var screenBox = box.children[0]; // 可视区域
+var ul = screenBox.children[0]; // 要运动的ul
+var lisUl = ul.children; // 顶部的所有图片
+var ol = screenBox.children[1]; // 小方块的父盒子
+var lisOl = ol.children; // 底部所有小方块
+var arrBox = box.children[1]; // 箭头父盒子
+var arrLeft = arrBox.children[0]; // 左箭头
+var arrRight = arrBox.children[1]; // 右箭头
+```
+
+## 设置小方块点击功能
+
+简单轮播图效果指的是底部小方块点击，实现轮播的功能。由于需要小方块操作，则需要先创建对应结构。
+
+### 动态创建小方块
+
+​	下面，我们根据顶部ul中li的个数，创建底部ol中的小方块li，并设置创建的第一个li类名为current，进行默认高亮显示。
+
+```javascript
+var li;
+for (var i = 0; i < lisUl.length; i++) {
+  li = document.createElement('li'); // 创建元素
+  ol.appendChild(li); // 添加到ol中
+  li.innerText = i + 1; // li设置内容
 }
-//如果想让注册的事件能移除，不能用匿名函数。
-box.addEventListener("click", fn1, false);
+lisOl[0].className = 'current'; // 设置ol中的第一个li的类名
 ```
 
-removeEventListen的语法
+### 设置小方块点击效果
 
-```javascript
-//第一个参数：事件类型
-//第二个参数：事件处理程序
-//第三个参数：false
-removeEventListener(type, func, useCapture);
+由于点击后ul要进行运动，需要提前引入animate.js。
+
+```html
+<script src="../animate.js"></script>
 ```
 
-**attachEvent与detachEvent**
+下一步设置小方块的点击效果，点击后完成按钮变色与ul运动。
 
-> IE678不支持addEventListener与removeEventListen两个方法，但是支持attachEvent与detachEvent
-
-attachEvent的用法：
+- ul的运动规律为： -当前按钮下标 * 图片宽度。
+- 这里图片宽度可以使用可视区域inner的宽度。
 
 ```javascript
-//type:事件类型   需要加上on   onclick  onmouseenter
-//func:事件处理程序
-attachEvent(type, func)
+var imgWid = screenBox.offsetWidth; // 获取图片宽度
 ```
 
-detachEvent的用法
+设置按钮变色与ul运动功能。
 
 ```javascript
-//type:事件类型   需要加上on   onclick  onmouseenter
-//func:事件处理程序
-detachEvent(type, func)
+for (i = 0; i < lisOl.length; i++) {
+  lisOl[i].xiaBiao = i;
+  lisOl[i].onclick = function () {
+    // 点击按钮变色
+    for (var i = 0; i < lisOl.length; i++) {
+      lisOl[i].className = '';
+    }
+    this.className = 'current';
+    // 设置对应运动
+    var target = - this.xiaBiao * imgWid;
+    animate(ul, target);
+  };
 ```
 
-### 事件流
+## 设置左右按钮点击功能
 
-> 当一个元素的事件被触发时，同样的事件将会在该元素的所有祖先元素中依次被触发。这一过程被称为事件冒泡。
+### 设置移入移出操作
 
-说白了就是：当我们触发了子元素的某个事件后，父元素对应的事件也会触发。
-
-通常情况，事件冒泡对于我们来说是没有问题的，我们直接不管就行了，但是如果当事件冒泡给我们带来影响的时候，我们需要阻止事件冒泡。
-
-> 阻止事件冒泡有浏览器兼容性问题
-
-正常浏览器：
+操作左右按钮前，先设置左右箭头的显示隐藏效果。
 
 ```javascript
-link.onclick = function (event) {
-    event = event || window.event;
-    //stop :停止  propagation：传播
-    event.stopPropagation();
-}
-```
-
-
-
-#### 事件捕获（了解）
-
-> 事件捕获是火狐浏览器提出来的，IE678不支持事件捕获（基本上，我们都是用事件冒泡）
-> 事件的处理将从DOM层次的根开始，而不是从触发事件的目标元素开始，事件被从目标元素的所有祖先元素依次往下传递
-
-```javascript
-//当addEventListener第三个参数为true时，表示事件捕获
-arr[i].addEventListener("click", function () {
-    console.log(this);
-},true);
-```
-
-
-
-#### 事件的三个阶段
-
-1. 事件的捕获阶段
-2. 事件的目标阶段（触发自己的事件）
-3. 事件的冒泡阶段
-
-事件有三个阶段，首先发生的是捕获阶段，然后是目标阶段，最后才是冒泡阶段，对于捕获和冒泡，我们只能干预其中的一个，通常来说，我们可能会干预事件冒泡阶段，而不去干预事件捕获阶段。
-
-
-
-#### 常见的事件
-
-> 常见的鼠标事件
-
-onmousedown:鼠标按下事件
-
-onmouseup:鼠标弹起事件
-
-onclick:单击事件
-
-ondblclick：双击事件
-
-onmouseover：鼠标经过事件
-
-onmouseout：鼠标离开事件
-
-onmousemove：鼠标移动事件
-
-onfocus：鼠标获得焦点事件
-
-onblur：鼠标失去焦点事件
-
-
-
-> 常见的键盘事件
-
-onkeydown:键盘按下时触发
-
-onkeyup:键盘弹起时触发
-
-
-
-> 对于鼠标事件，事件对象中有一系列的XY记录了鼠标的位置信息。而键盘事件中，事件对象有一个event.keyCode属性，记录了按下去的键的键盘码
-
-## 事件对象
-
-### 事件对象的概述
-
-> 在触发某个事件的时候，都会产生一个事件对象Event，这个对象中包含所有与事件相关的一些信息，包括触发事件的元素，事件的类型以及其他与事件相关的信息。
-
-鼠标事件触发时，事件对象中会包含鼠标的位置信息。
-
-键盘事件触发时，事件对象中会包含按下的键相关的信息。
-
-```javascript
-每一个事件在触发时，都会产生一个事件对象。
-你见或者不见，我就在那里，不悲不喜。
-你爱或者不爱，爱就在那里，不增不减。
-你用或者不用，我都会给你，不离不弃。 
-```
-
-
-
-### 获取事件对象
-
-> 既然事件对象中存储了这么多的信息，我们首先需要做的就是获取到这个事件对象。获取事件对象的时候，存在浏览器的兼容问题。
-
-
-
-对于现代浏览器，获取事件对象非常的简单，只需要在注册事件的时候，指定一个形参即可。这个形参就是我们想要获取到的事件对象。
-
-```javascript
-btn.onclick = function(event){
-    //event就是事件对象，里面包含了事件触发时的一些信息。
-	console.log(event);
-}
-
-```
-
-
-
-对于IE678来说，获取事件对象则是另一种方式，在事件里面，通过window.event来获取事件对象
-
-```javascript
-btn.onclick = function(){
-	//IE678通过window.event获取事件对象
-	var event = window.event;
-	console.log(event);
-}
-```
-
-
-
-兼容性封装
-
-```javascript
-btn.onclick = function(event){
-  	//只要用到了事件对象，就要记得处理浏览器兼容性
-	event = event || window.event;
-}
-
-```
-
-
-
-### 事件对象的常用属性
-
-> 事件对象中有很多很多的属性，但是很多属性并不常用。我们经常用到的是***鼠标位置信息*** 和***键盘码***  相关的信息。
-
-记录了鼠标位置信息的相关属性
-
-```javascript
-clientX与clientY：光标相对于可视区左上角的水平位置和垂直位置。
-pageX与pageY：光标相对于网页（文档document）左上角的水平位置与垂直位置（推荐使用）
-```
-
-记录了键盘码的属性
-
-```javascript
-event.keyCode:键盘按下的那个键的键盘码
-```
-
-### 放大镜效果（案例）
-
-> 放大镜在开发中是一个很常见的特效，但是所有的放大镜的实现效果都是一样。
-
-mousemove事件：鼠标移动时会触发这个事件。
-
-```javascript
-document.onmousemove = function(){
-	console.log("鼠标移动事件在触发");  
+box.onmouseover = function () {
+  arrBox.style.display = 'block';
+};
+box.onmouseout = function () {
+  arrBox.style.display = 'none';
 };
 ```
 
-获取鼠标在盒子中的位置：
+​	左右按钮点击运动，需要通过变量count来记录滚出到可视区域外的图片张数，点击右按钮设置计数加1，点击左按钮设置计数减1。运动规律为： - count * 图片宽度。
 
 ```javascript
-var spaceX = getPage(event).x - box.offsetLeft;
-var spaceY = getPage(event).y - box.offsetTop;
-```
-
-
-# Web APIs - Day5
-
-## 每日目标
-
-- 能够掌握注册事件的新方式
-- 能够移除事件
-- 能够说出事件冒泡的执行顺序
-- 能够说出什么是事件对象
-- 能够进行事件委托设置
-- 能够掌握鼠标坐标的获取方式
-- 能够完成拖拽案例
-
-## 注册事件的两种方式
-
-### on+事件名称
-
-> onclick、onmouseover这种on+事件名称的方式注册事件几乎所有的浏览器都支持。
-
-注册事件：
-
-```javascript
-box.onclick = function(){
-	//事件处理程序	
-}
-```
-
-移除事件：
-
-```javascript
-box.onclick = null;	
-```
-
-on+事件名称注册事件的缺点：
-
-同一个元素同一类型的事件，只能注册一个，如果注册了多个，会出现覆盖问题。
-
-
-
-### 注册事件的新方式
-
-**addEventListener与removeEventListener**
-
-> 现代浏览器支持的注册事件的新方式，这种方式注册的事件不会出现覆盖问题。
-
-addEventListener的语法
-
-```javascript
-//第一个参数：事件类型：click mouseover
-//第二个参数：事件处理程序
-//第三个参数：false 
-DOM对象.addEventListener(type, func, useCapture);
-```
-
-注意：如果想要让你注册的事件能够移除，不能使用匿名函数。
-
-```javascript
-function fn1() {
-    alert("hehe");
-}
-//如果想让注册的事件能移除，不能用匿名函数。
-box.addEventListener("click", fn1, false);
-```
-
-removeEventListen的语法
-
-```javascript
-//第一个参数：事件类型
-//第二个参数：事件处理程序
-//第三个参数：false
-removeEventListener(type, func, useCapture);
-```
-
-**attachEvent与detachEvent**
-
-> IE678不支持addEventListener与removeEventListen两个方法，但是支持attachEvent与detachEvent
-
-attachEvent的用法：
-
-```javascript
-//type:事件类型   需要加上on   onclick  onmouseenter
-//func:事件处理程序
-attachEvent(type, func)
-```
-
-detachEvent的用法
-
-```javascript
-//type:事件类型   需要加上on   onclick  onmouseenter
-//func:事件处理程序
-detachEvent(type, func)
-```
-
-### 事件流
-
-> 当一个元素的事件被触发时，同样的事件将会在该元素的所有祖先元素中依次被触发。这一过程被称为事件冒泡。
-
-说白了就是：当我们触发了子元素的某个事件后，父元素对应的事件也会触发。
-
-通常情况，事件冒泡对于我们来说是没有问题的，我们直接不管就行了，但是如果当事件冒泡给我们带来影响的时候，我们需要阻止事件冒泡。
-
-> 阻止事件冒泡有浏览器兼容性问题
-
-正常浏览器：
-
-```javascript
-link.onclick = function (event) {
-    event = event || window.event;
-    //stop :停止  propagation：传播
-    event.stopPropagation();
-}
-```
-
-
-
-#### 事件捕获（了解）
-
-> 事件捕获是火狐浏览器提出来的，IE678不支持事件捕获（基本上，我们都是用事件冒泡）
-> 事件的处理将从DOM层次的根开始，而不是从触发事件的目标元素开始，事件被从目标元素的所有祖先元素依次往下传递
-
-```javascript
-//当addEventListener第三个参数为true时，表示事件捕获
-arr[i].addEventListener("click", function () {
-    console.log(this);
-},true);
-```
-
-
-
-#### 事件的三个阶段
-
-1. 事件的捕获阶段
-2. 事件的目标阶段（触发自己的事件）
-3. 事件的冒泡阶段
-
-事件有三个阶段，首先发生的是捕获阶段，然后是目标阶段，最后才是冒泡阶段，对于捕获和冒泡，我们只能干预其中的一个，通常来说，我们可能会干预事件冒泡阶段，而不去干预事件捕获阶段。
-
-
-
-#### 常见的事件
-
-> 常见的鼠标事件
-
-onmousedown:鼠标按下事件
-
-onmouseup:鼠标弹起事件
-
-onclick:单击事件
-
-ondblclick：双击事件
-
-onmouseover：鼠标经过事件
-
-onmouseout：鼠标离开事件
-
-onmousemove：鼠标移动事件
-
-onfocus：鼠标获得焦点事件
-
-onblur：鼠标失去焦点事件
-
-
-
-> 常见的键盘事件
-
-onkeydown:键盘按下时触发
-
-onkeyup:键盘弹起时触发
-
-
-
-> 对于鼠标事件，事件对象中有一系列的XY记录了鼠标的位置信息。而键盘事件中，事件对象有一个event.keyCode属性，记录了按下去的键的键盘码
-
-## 事件对象
-
-### 事件对象的概述
-
-> 在触发某个事件的时候，都会产生一个事件对象Event，这个对象中包含所有与事件相关的一些信息，包括触发事件的元素，事件的类型以及其他与事件相关的信息。
-
-鼠标事件触发时，事件对象中会包含鼠标的位置信息。
-
-键盘事件触发时，事件对象中会包含按下的键相关的信息。
-
-```javascript
-每一个事件在触发时，都会产生一个事件对象。
-你见或者不见，我就在那里，不悲不喜。
-你爱或者不爱，爱就在那里，不增不减。
-你用或者不用，我都会给你，不离不弃。 
-```
-
-
-
-### 获取事件对象
-
-> 既然事件对象中存储了这么多的信息，我们首先需要做的就是获取到这个事件对象。获取事件对象的时候，存在浏览器的兼容问题。
-
-
-
-对于现代浏览器，获取事件对象非常的简单，只需要在注册事件的时候，指定一个形参即可。这个形参就是我们想要获取到的事件对象。
-
-```javascript
-btn.onclick = function(event){
-    //event就是事件对象，里面包含了事件触发时的一些信息。
-	console.log(event);
-}
-
-```
-
-
-
-对于IE678来说，获取事件对象则是另一种方式，在事件里面，通过window.event来获取事件对象
-
-```javascript
-btn.onclick = function(){
-	//IE678通过window.event获取事件对象
-	var event = window.event;
-	console.log(event);
-}
-```
-
-
-
-兼容性封装
-
-```javascript
-btn.onclick = function(event){
-  	//只要用到了事件对象，就要记得处理浏览器兼容性
-	event = event || window.event;
-}
-
-```
-
-
-
-### 事件对象的常用属性
-
-> 事件对象中有很多很多的属性，但是很多属性并不常用。我们经常用到的是***鼠标位置信息*** 和***键盘码***  相关的信息。
-
-记录了鼠标位置信息的相关属性
-
-```javascript
-clientX与clientY：光标相对于可视区左上角的水平位置和垂直位置。
-pageX与pageY：光标相对于网页（文档document）左上角的水平位置与垂直位置（推荐使用）
-```
-
-记录了键盘码的属性
-
-```javascript
-event.keyCode:键盘按下的那个键的键盘码
-```
-
-### 放大镜效果（案例）
-
-> 放大镜在开发中是一个很常见的特效，但是所有的放大镜的实现效果都是一样。
-
-mousemove事件：鼠标移动时会触发这个事件。
-
-```javascript
-document.onmousemove = function(){
-	console.log("鼠标移动事件在触发");  
+arrRight.onclick = function () {
+  count++;
+  var target = - count * imgWid;
+  animate(ul, target);
+};
+arrLeft.onclick = function () {
+  count--;
+  var target = - count * imgWid;
+  animate(ul, target);
 };
 ```
 
-获取鼠标在盒子中的位置：
+### 设置小方块点击与左右箭头效果联动
+
+​	通过操作发现，点击小方块后再点击左右箭头，运动的效果与正常效果不符。原因为点击小方块后count值没有改变，需要在小方块点击事件中添加如下代码实现同步。
 
 ```javascript
-var spaceX = getPage(event).x - box.offsetLeft;
-var spaceY = getPage(event).y - box.offsetTop;
+count = this.xiaBiao;
 ```
 
+​	第二个问题为点击左右箭头后，小方块的对应变色没有设置，通过操作观察后发现，要显示的小方块下标与count值相同，可以在左右按钮的点击事件中设置如下代码：
 
+```javascript
+arrRight.onclick = function () {
+// ... 原始代码
+  for (var i = 0; i < lisOl.length; i++) {
+    lisOl[i].className = '';
+  }
+  lisOl[count].className = 'current';
+};
+arrLeft.onclick = function () {
+  // ... 原始代码
+  for (var i = 0; i < lisOl.length; i++) {
+    lisOl[i].className = '';
+  }
+  lisOl[count].className = 'current';
+};
+```
 
+## 设置无缝滚动效果
 
+为了制作无缝滚动效果，需要设置"假的第一张"。这里设置对ul中第一个li的克隆操作，并添加到ul的最后位置。
 
+```javascript
+var pic = lisUl[0].cloneNode(true);
+ul.appendChild(pic);
+```
 
+​	设置后，当点击右按钮运动到假的第一张显示位置时，由于count取值为5，所以对上一步中小方块的类名设置会出现影响。根据效果，假的第一张显示时应当小方块1设置高亮。在右按钮点击事件中设置如下修改：
 
+```javascript
+lisOl[count].className = 'current';
+```
 
+修改为：
 
+```javascript
+if (count === lisUl.length - 1) {
+  lisOl[0].className = 'current';
+} else {
+  lisOl[count].className = 'current';  
+}
+```
 
+​	点击左右按钮后，检测当前显示的图片位置。当点击右按钮时，如果当前显示为假的第一张时，count为lisUl.length - 1，设置ul的left为0，抽回到第一张显示的位置，同时更新count为0；当点击左按钮时，如果当前显示为第一张图片时，count为0，设置ul的left为-(ul.offsetWidth - imgWid)，抽回到假的第一张显示的位置，同时更新count为lisUl.length - 1。设置如下代码：
 
+```javascript
+arrRight.onclick = function () {
+  if (count === lisUl.length - 1) {
+    ul.style.left = 0 + 'px';
+    count = 0;
+  }
+  // ... 原始代码
+};
+arrLeft.onclick = function () {
+  if (count === 0) {
+    ul.style.left = - (ul.offsetWidth - imgWid) + 'px';
+    count = lisUl.length - 1;
+  }
+  // ... 原始代码
+};
+```
+
+上述功能设置完毕后，轮播图的基本功能就制作完毕了，下面还需要考虑一些细节。当可视区域中显示假的第一张图时，点击小方块1，这时ul会滚动到真正的第一张图的位置，这时可以在小方块的点击事件的开始位置添加一个检测，这时将ul的left设置为0，进行抽回操作即可。
+
+```javascript
+for (i = 0; i < lisOl.length; i++) {
+  lisOl[i].xiaBiao = i;
+  lisOl[i].onclick = function () {
+    if (count === lisUl.length - 1) {
+      ul.style.left = 0 + 'px';
+    }
+  	// ... 原始代码
+}
+```
+
+## 自动播放
+
+自动播放效果为每间隔一段时间 ，自动播放下一张图片显示。这里可以借助右按钮的点击事件代码进行操作。
+
+```javascript
+var timer = null;
+timer = setInterval(function () {
+  arrRight.onclick();
+}, 2000);
+```
+
+下面设置鼠标移入后清除自动播放功能，鼠标移出后再次开启自动播放功能。这里将功能设置在左右箭头显示隐藏的两个事件中。
+
+```javascript
+box.onmouseover = function () {
+  // ... 原始代码
+  clearInterval(timer); // 移入时清除自动播放
+};
+box.onmouseout = function () {
+  // ... 原始代码
+  timer = setInterval(function () { // 移出时开启自动播放
+    arrRight.onclick();
+  }, 2000);
+};
+```
+
+以上为轮播图功能的完整制作步骤。
